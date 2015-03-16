@@ -234,6 +234,17 @@ _.Post = function (Url, Data, Success, Fail) {
 	Request.send(PostData);
 };
 
+_.PostJSON = function (Url, Data, Success, Fail) {
+	_.Post(Url, function (Response, Request) {
+		try {
+			var Return = JSON.parse(Response);
+			Success.call(this, Return, Response, Request);
+		} catch (Error) {
+			Fail.call(this, Response, Request);
+		}
+	}, Fail);
+};
+
 _.Get = function (Url, Success, Fail) {
 	var Request = new XMLHttpRequest();
 	Request.addEventListener("load", function (Event) {
@@ -254,6 +265,17 @@ _.Get = function (Url, Success, Fail) {
 	Request.send(null);
 };
 
+_.GetJSON = function (Url, Success, Fail) {
+	_.Get(Url, function (Response, Request) {
+		try {
+			var Return = JSON.parse(Response);
+			Success.call(this, Return, Response, Request);
+		} catch (Error) {
+			Fail.call(this, Response, Request);
+		}
+	}, Fail);
+};
+
 _.CreateElement = function (TagName, Parent, Attributes, Properties) {
 	if (Attributes === undefined || Attributes === null)
 		Attributes = [];
@@ -263,9 +285,18 @@ _.CreateElement = function (TagName, Parent, Attributes, Properties) {
 	_.Each(Attributes, function(Key, Value) {
 		Element.setAttribute(Key, Value);
 	});
-	_.Each(Properties, function(Key, Value) {
-		Element[Key] = Value;
-	});
+	function SetProperty(ElementProp, Properties) {
+		_.Each(Properties, function (Key, Value) {
+			if (typeof Value == "object")
+				SetProperty(ElementProp[Key], Value);
+			else
+				ElementProp[Key] = Value;
+		});
+	}
+	SetProperty(Element, Properties);
+	// _.Each(Properties, function(Key, Value) {
+	// 	Element[Key] = Value;
+	// });
 	if (Parent !== undefined && Parent !== null)
 		Parent.appendChild(Element);
 	
