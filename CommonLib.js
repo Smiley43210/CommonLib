@@ -277,14 +277,6 @@ _.GetJSON = function (Url, Success, Fail) {
 };
 
 _.CreateElement = function (TagName, Parent, Attributes, Properties) {
-	if (Attributes === undefined || Attributes === null)
-		Attributes = [];
-	if (Properties === undefined || Properties === null)
-		Properties = [];
-	var Element = document.createElement(TagName.toUpperCase());
-	_.Each(Attributes, function(Key, Value) {
-		Element.setAttribute(Key, Value);
-	});
 	function SetProperty(ElementProp, Properties) {
 		_.Each(Properties, function (Key, Value) {
 			if (typeof Value == "object")
@@ -293,11 +285,15 @@ _.CreateElement = function (TagName, Parent, Attributes, Properties) {
 				ElementProp[Key] = Value;
 		});
 	}
-	SetProperty(Element, Properties);
-	// _.Each(Properties, function(Key, Value) {
-	// 	Element[Key] = Value;
-	// });
-	if (Parent !== undefined && Parent !== null)
+	var Element = document.createElement(TagName.toUpperCase());
+	if (Attributes !== undefined && Attributes !== null && Attributes !== false)
+		_.Each(Attributes, function(Key, Value) {
+			Element.setAttribute(Key, Value);
+		});
+	if (Properties !== undefined && Properties !== null && Properties !== false) {
+		SetProperty(Element, Properties);
+	}
+	if (Parent !== undefined && Parent !== null && Parent !== false)
 		Parent.appendChild(Element);
 	
 	return Element;
@@ -305,7 +301,7 @@ _.CreateElement = function (TagName, Parent, Attributes, Properties) {
 
 _.CreateText = function (Text, Parent) {
 	var Node = document.createTextNode(Text);
-	if (Parent !== undefined && Parent !== null)
+	if (Parent !== undefined && Parent !== null && Parent !== false)
 		Parent.appendChild(Node);
 	
 	return Node;
